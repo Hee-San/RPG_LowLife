@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour {
 	public float speed = 6.0F;
 	public float destinationMargin = 8f;
 	private Vector3 moveDirection = Vector3.zero;
+	public Transform Joint;
 	private Transform Destination;
 
 	public enum Direction
@@ -25,23 +26,33 @@ public class PlayerController : MonoBehaviour {
 	public Direction direction;
 	private Animator m_Anim;
 	private SpriteRenderer spriteRen;
+	private Rigidbody2D rb;
 	void Awake(){
 		Destination = transform.Find ("Destination");
 		spriteRen = GetComponent<SpriteRenderer> ();
 		m_Anim = GetComponent<Animator>();
+		rb = GetComponent<Rigidbody2D> ();
 	}
 	void Update() {
 		float h = CrossPlatformInputManager.GetAxis("Horizontal");
 		float v = CrossPlatformInputManager.GetAxis ("Vertical");
+		rb.velocity = new Vector2 (0, 0);
 		CharacterController controller = GetComponent<CharacterController>();
 		moveDirection = new Vector3(h,v, 0);
 		moveDirection = transform.TransformDirection(moveDirection);
-		moveDirection *= speed;
-		controller.Move(moveDirection * Time.deltaTime);
 		Destination.transform.position = transform.position + moveDirection;
+		moveDirection *= speed;
+		//controller.Move(moveDirection * Time.deltaTime);
+		Joint.transform.position = transform.position + moveDirection;
 		m_Anim.SetFloat("X_Direction", h);
 		m_Anim.SetFloat("Y_Direction", v);
 		AnimationUpdate (h, v);
+		/*if (rb.velocity.y*v<=0) {
+			rb.velocity = new Vector2(rb.velocity.x, 0);
+		}
+		if (rb.velocity.x*h<=0) {
+			rb.velocity = new Vector2 (0, rb.velocity.y);
+		}*/
 	}
 	void AnimationUpdate(float h, float v){
 		if (h == 0f && v == 0f) {
@@ -107,4 +118,5 @@ public class PlayerController : MonoBehaviour {
 			}
 		}
 	}
+		
 }
